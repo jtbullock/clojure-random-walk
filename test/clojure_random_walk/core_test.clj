@@ -39,6 +39,23 @@
       (is (= false (are-points-adjacent? fixed-point [51 55]))))
     
     (testing "When fixed point is at y+1 but x+5, returns false."
-      (is (= false (are-points-adjacent? fixed-point [55 51]))))
-  )
-)
+      (is (= false (are-points-adjacent? fixed-point [55 51]))))))
+
+(deftest get-adjacent-points-test
+  (testing "Returns adjacent points"
+    (is (= #{[50 49] [50 51] [49 50] [51 50]} (get-adjacent-points [50 50])))))
+
+(deftest simulation-contains-adjacent-point?-test
+  (let [simulation (add-fixed-point (create-simulation 200 200) 50 50)]
+    (testing "When point is not next to fixed point, returns false."
+      (is (= false (simulation-contains-adjacent-point? simulation [2 2]))))
+    (testing "When point is next to fixed point, returns true"
+      (is (= true (simulation-contains-adjacent-point? simulation [50 51]))))
+    
+    (let [multi-point-sim (add-fixed-point simulation 40 40)]
+      (testing "When sim has multiple fixed points, and point 
+                is next to a fixed point, returns true."
+        (is (= false (simulation-contains-adjacent-point? multi-point-sim [2 2]))))
+      (testing "When sim has multiple fixed points, and point 
+                is not next to a fixed point, returns false."
+        (is (= true (simulation-contains-adjacent-point? multi-point-sim [40 41])))))))

@@ -8,8 +8,13 @@
 
 (defn add-fixed-point
   "Add a fixed point to a `simulation` at coordinates `x` and `y`."
-  [simulation x y]
+  [simulation [x y]]
   (update simulation :fixed-points conj [x y]))
+
+(defn add-fixed-points
+  "Add fixed `points` to `simulation`"
+  [simulation & points]
+  (reduce add-fixed-point simulation points))
 
 (defn get-adjacent-points
   "Return a set of points adjacent to the provided `[x y]` coordinates."
@@ -29,3 +34,27 @@
   [simulation point]
   (->> (get-adjacent-points point) 
        (intersection (simulation :fixed-points)) seq boolean))
+
+(defn simulation-row->printable-string
+  "Converts a `simulation` `row` into a printable string."
+  [simulation row-number]
+  (reduce
+   (fn [row-str col-number]
+     (let [coordinates [row-number (inc col-number)]
+           fixed-point-at-coordinates? (contains? (simulation :fixed-points) coordinates)]
+       (str row-str (if fixed-point-at-coordinates? "O" "-"))))
+   ""
+   (range (simulation :width))))
+
+(defn simulation->printable-strings
+  "Converts a `simulation`'s point data to strings that can be printed to console."
+  [simulation]
+  (map (fn [row] (simulation-row->printable-string simulation (inc row)))
+       (range (simulation :height))
+))
+
+(defn print-simulation-to-console
+  "Print a simulation to the console."
+  [simulation]
+  (doseq [row (simulation->printable-strings simulation)]
+    (println row)))

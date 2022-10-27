@@ -77,3 +77,46 @@
              into vector of printable strings."
       (is (= ["--O-O-" "-O----" "-O---O"] (simulation->printable-strings simulation))))))
 
+
+(deftest get-all-boundary-points-test
+  (testing "Returns all points along border of 3x3 simulation."
+    ; 3x3 simulation grid:
+    ; [0 0] [0 1] [0 2]
+    ; [1 0] [1 1] [1 2]
+    ; [2 0] [2 1] [2 2]
+    (let [simulation (create-simulation 3 3)
+          expected-points #{[0 0] [0 1] [0 2]
+                            [1 0]       [1 2]
+                            [2 0] [2 1] [2 2]}]
+      (is (= expected-points (get-all-boundary-points simulation)))))
+
+  (testing "Returns all points along border of 5x4 simulation."
+    ; 5x4 simulation grid:
+    ; [0 0] [0 1] [0 2] [0 3] [0 4]
+    ; [1 0] [1 1] [1 2] [1 3] [1 4]
+    ; [2 0] [2 1] [2 2] [2 3] [2 4]
+    ; [3 0] [3 1] [3 2] [3 3] [3 4]
+    (let [simulation (create-simulation 5 4)
+          expected-points #{[0 0] [0 1] [0 2] [0 3] [0 4]
+                            [1 0]                   [1 4]
+                            [2 0]                   [2 4]
+                            [3 0] [3 1] [3 2] [3 3] [3 4]}]
+      (is (= expected-points (get-all-boundary-points simulation))))))
+
+(def)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

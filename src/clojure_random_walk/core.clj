@@ -58,3 +58,23 @@
   [simulation]
   (doseq [row (simulation->printable-strings simulation)]
     (println row)))
+
+(defn get-all-boundary-points
+  "Return a list of all points on boundaries of simulation."
+  [simulation]
+  (let [sim-width (simulation :width)
+        sim-height (simulation :height)
+        max-x (- sim-height 1)
+        max-y (- sim-width 1)]
+    (-> (for [x [0 max-x]
+              y (range sim-width)]
+          [x y])
+        (concat (for [x (range 1 max-x)
+                      y [0 max-y]]
+                  [x y]))
+        set)))
+
+(defn get-random-boundary-point
+  "Get a point in a random location on the simulation boundary."
+  [simulation]
+  [1,1])

@@ -103,8 +103,19 @@
                             [3 0] [3 1] [3 2] [3 3] [3 4]}]
       (is (= expected-points (get-all-boundary-points simulation))))))
 
-(def)
-
+; To test the random results, running the function many times
+; to get a good sample set, and checking all the results.
+(deftest get-random-boundary-point-test
+  (testing "Always returns a random point along boundary of 3x3 simulation.")
+    (let [simulation (create-simulation 3 3)
+          expected-points (get-all-boundary-points simulation)
+          random-points (repeatedly 81 (partial get-random-boundary-point simulation))]
+      (is (every? (partial contains? expected-points) random-points)))
+  (testing "Always returns a random point along boundary of 5x4 simulation.")
+    (let [simulation (create-simulation 5 4)
+          expected-points (get-all-boundary-points simulation)
+          random-points (repeatedly 400 (partial get-random-boundary-point simulation))]
+      (is (every? (partial contains? expected-points) random-points))))
 
 
 

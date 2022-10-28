@@ -77,4 +77,4 @@
 (defn get-random-boundary-point
   "Get a point in a random location on the simulation boundary."
   [simulation]
-  [1,1])
+  (rand-nth (vec (get-all-boundary-points simulation))))

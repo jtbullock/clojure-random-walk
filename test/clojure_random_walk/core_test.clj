@@ -88,7 +88,7 @@
           expected-points #{[0 0] [0 1] [0 2]
                             [1 0]       [1 2]
                             [2 0] [2 1] [2 2]}]
-      (is (= expected-points (get-all-boundary-points simulation)))))
+      (is (= expected-points (set (get-all-boundary-points simulation))))))
 
   (testing "Returns all points along border of 5x4 simulation."
     ; 5x4 simulation grid:
@@ -101,23 +101,38 @@
                             [1 0]                   [1 4]
                             [2 0]                   [2 4]
                             [3 0] [3 1] [3 2] [3 3] [3 4]}]
-      (is (= expected-points (get-all-boundary-points simulation))))))
+      (is (= expected-points (set (get-all-boundary-points simulation)))))))
 
 ; To test the random results, running the function many times
 ; to get a good sample set, and checking all the results.
 (deftest get-random-boundary-point-test
   (testing "Always returns a random point along boundary of 3x3 simulation.")
     (let [simulation (create-simulation 3 3)
-          expected-points (get-all-boundary-points simulation)
+          expected-points (set (get-all-boundary-points simulation))
           random-points (repeatedly 81 (partial get-random-boundary-point simulation))]
       (is (every? (partial contains? expected-points) random-points)))
   (testing "Always returns a random point along boundary of 5x4 simulation.")
     (let [simulation (create-simulation 5 4)
-          expected-points (get-all-boundary-points simulation)
+          expected-points (set (get-all-boundary-points simulation))
           random-points (repeatedly 400 (partial get-random-boundary-point simulation))]
       (is (every? (partial contains? expected-points) random-points))))
 
-
+(deftest move-particle-test
+  (let [simulation (create-simulation 3 3)]
+    (testing "Particle is moved."
+      (is (not= [0 0] (move-particle [0 0] simulation))))
+    (testing "Particle does not move past top of simulation."
+      (let [moved-particles (repeatedly 10 #(move-particle [0 1] simulation))]
+        (is (every? #(>= (first %) 0) moved-particles))))
+    (testing "Particle does not move past left of simulation."
+      (let [moved-particles (repeatedly 10 #(move-particle [1 0] simulation))]
+        (is (every? #(>= (second %) 0) moved-particles))))
+    (testing "Particle does not move past right of simulation."
+      (let [moved-particles (repeatedly 10 #(move-particle [1 2] simulation))]
+        (is (every? #(<= (second %) 2) moved-particles))))
+    (testing "Particle does not move past bottom of simulation."
+      (let [moved-particles (repeatedly 10 #(move-particle [2 1] simulation))]
+        (is (every? #(<= (first %) 2) moved-particles))))))
 
 
 

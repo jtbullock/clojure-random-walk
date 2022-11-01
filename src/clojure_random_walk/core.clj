@@ -71,10 +71,22 @@
           [x y])
         (concat (for [x (range 1 max-x)
                       y [0 max-y]]
-                  [x y]))
-        set)))
+                  [x y])))))
 
 (defn get-random-boundary-point
   "Get a point in a random location on the simulation boundary."
   [simulation]
-  (rand-nth (vec (get-all-boundary-points simulation))))
+  (rand-nth (get-all-boundary-points simulation)))
+
+(def particle-move-directions
+  [{:name "down" :shift [1 0] :test (fn [particle sim] (not= (first particle) (dec (sim :height))))}
+   {:name "up" :shift [-1 0] :test (fn [particle _] (not= (first particle) 0))}
+   {:name "right" :shift [0 1] :test (fn [particle sim] (not= (second particle) (dec (sim :width))))}
+   {:name "left" :shift [0 -1] :test (fn [particle _] (not= (second particle) 0))}])
+
+(defn move-particle
+  "Move `particle` in a random direction within the `simulation`",
+  [particle simulation]
+  (let [possible-directions (filter #((:test %) particle simulation) particle-move-directions)
+        random-direction-shift (:shift (rand-nth possible-directions))]
+    (mapv + particle random-direction-shift)))

@@ -6,59 +6,59 @@
   (testing "create-simulation returns a new simulation with the provided
             width and height."
     (is (let [width 200 height 200]
-          (= {:width width :height height :fixed-points #{}} 
+          (= {:width width :height height :fixed-particles #{}}
              ( create-simulation width height))))))
 
 (deftest add-fixed-point-test
-  (testing "add-fixed-point adds a new point to simulation."
+  (testing "add-fixed-particle adds a new point to simulation."
     (is (let [simulation (create-simulation 200 200)]
-          (= {:width 200 :height 200 :fixed-points #{[50,50]}}
-             ( add-fixed-point simulation [50 50]))))))
+          (= {:width 200 :height 200 :fixed-particles #{[50,50]}}
+             ( add-fixed-particle simulation [50 50]))))))
 
 (deftest add-fixed-points-test
-  (testing "add-fixed-points adds multiple points to simulation."
+  (testing "add-fixed-particles adds multiple points to simulation."
     (is (let [simulation (create-simulation 200 200)]
-          (= {:width 200 :height 200 :fixed-points #{[10,10] [20,20] [34,35]}}
-             (add-fixed-points simulation [10,10] [20,20] [34,35]))))))
+          (= {:width 200 :height 200 :fixed-particles #{[10,10] [20,20] [34,35]}}
+             (add-fixed-particles simulation [10,10] [20,20] [34,35]))))))
 
-(deftest are-points-adjacent?-test
+(deftest points-adjacent?-test
   (let [fixed-point [50 50]]
     (testing "When no point is next to coordinates, returns false."
-      (is (= false (are-points-adjacent? fixed-point [5 5]))))
+      (is (= false (points-adjacent? fixed-point [5 5]))))
     
     (testing "When fixed point is directly above coordinates, returns true."
-      (is (= true (are-points-adjacent? fixed-point [50 51])))) 
+      (is (= true (points-adjacent? fixed-point [50 51]))))
   
     (testing "When fixed point is directly below coordinates, returns true."
-      (is (= true (are-points-adjacent? fixed-point [50 49]))))
+      (is (= true (points-adjacent? fixed-point [50 49]))))
     
     (testing "When fixed point is directly to the left, returns true."
-      (is (= true (are-points-adjacent? fixed-point [51 50]))))
+      (is (= true (points-adjacent? fixed-point [51 50]))))
     
     (testing "When fixed point is directly to the right, returns true."
-      (is (= true (are-points-adjacent? fixed-point [49 50]))))
+      (is (= true (points-adjacent? fixed-point [49 50]))))
     
     (testing "When fixed point is above and to the left, returns false."
-      (is (= false (are-points-adjacent? fixed-point [51 51]))))
+      (is (= false (points-adjacent? fixed-point [51 51]))))
     
     (testing "When fixed point is at x+1 but y+5, returns false."
-      (is (= false (are-points-adjacent? fixed-point [51 55]))))
+      (is (= false (points-adjacent? fixed-point [51 55]))))
     
     (testing "When fixed point is at y+1 but x+5, returns false."
-      (is (= false (are-points-adjacent? fixed-point [55 51]))))))
+      (is (= false (points-adjacent? fixed-point [55 51]))))))
 
 (deftest get-adjacent-points-test
   (testing "Returns adjacent points"
     (is (= #{[50 49] [50 51] [49 50] [51 50]} (get-adjacent-points [50 50])))))
 
 (deftest simulation-contains-adjacent-point?-test
-  (let [simulation (add-fixed-point (create-simulation 200 200) [50 50])]
+  (let [simulation (add-fixed-particle (create-simulation 200 200) [50 50])]
     (testing "When point is not next to fixed point, returns false."
       (is (= false (simulation-contains-adjacent-point? simulation [2 2]))))
     (testing "When point is next to fixed point, returns true"
       (is (= true (simulation-contains-adjacent-point? simulation [50 51]))))
     
-    (let [multi-point-sim (add-fixed-point simulation [40 40])]
+    (let [multi-point-sim (add-fixed-particle simulation [40 40])]
       (testing "When sim has multiple fixed points, and point 
                 is next to a fixed point, returns true."
         (is (= false (simulation-contains-adjacent-point? multi-point-sim [2 2]))))
@@ -67,12 +67,12 @@
         (is (= true (simulation-contains-adjacent-point? multi-point-sim [40 41])))))))
 
 (deftest simulation-row->printable-string-test
-  (let [simulation (add-fixed-points (create-simulation 6 3) [1 3] [1 5])]
+  (let [simulation (add-fixed-particles (create-simulation 6 3) [1 3] [1 5])]
     (testing "Turns a simulation row into a string"
       (is (= "--O-O-" (simulation-row->printable-string simulation 1))))))
 
 (deftest simulation->printable-strings-test
-  (let [simulation (add-fixed-points (create-simulation 6 3) [1 3] [1 5] [2 2] [3 2] [3 6])]
+  (let [simulation (add-fixed-particles (create-simulation 6 3) [1 3] [1 5] [2 2] [3 2] [3 6])]
     (testing "Simulation->printable-strings turns a simulation 
              into vector of printable strings."
       (is (= ["--O-O-" "-O----" "-O---O"] (simulation->printable-strings simulation))))))
@@ -120,20 +120,26 @@
 (deftest move-particle-test
   (let [simulation (create-simulation 3 3)]
     (testing "Particle is moved."
-      (is (not= [0 0] (move-particle [0 0] simulation))))
+      (is (not= [0 0] (move-particle simulation [0 0]))))
     (testing "Particle does not move past top of simulation."
-      (let [moved-particles (repeatedly 10 #(move-particle [0 1] simulation))]
+      (let [moved-particles (repeatedly 10 #(move-particle simulation [0 1]))]
         (is (every? #(>= (first %) 0) moved-particles))))
     (testing "Particle does not move past left of simulation."
-      (let [moved-particles (repeatedly 10 #(move-particle [1 0] simulation))]
+      (let [moved-particles (repeatedly 10 #(move-particle simulation [1 0]))]
         (is (every? #(>= (second %) 0) moved-particles))))
     (testing "Particle does not move past right of simulation."
-      (let [moved-particles (repeatedly 10 #(move-particle [1 2] simulation))]
+      (let [moved-particles (repeatedly 10 #(move-particle simulation [1 2]))]
         (is (every? #(<= (second %) 2) moved-particles))))
     (testing "Particle does not move past bottom of simulation."
-      (let [moved-particles (repeatedly 10 #(move-particle [2 1] simulation))]
+      (let [moved-particles (repeatedly 10 #(move-particle simulation [2 1]))]
         (is (every? #(<= (first %) 2) moved-particles))))))
 
+(deftest walk-particle-test
+  (testing "Particle's final location is next to a fixed particle"
+    (let [fixed-particle [4 4]
+          simulation (add-fixed-particles (create-simulation 10 10) fixed-particle)
+          walked-particle (walk-particle (get-random-boundary-point simulation) simulation)]
+      (is (points-adjacent? fixed-particle walked-particle)))))
 
 
 

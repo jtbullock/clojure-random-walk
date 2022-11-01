@@ -2,19 +2,19 @@
   (:require [clojure.set :refer [intersection]]))
 
 (defn create-simulation 
-  "Create a new simluation with the specified `width` and `height`."
+  "Create a new simulation with the specified `width` and `height`."
   [width height]
-  {:width width, :height height, :fixed-points #{}})
+  {:width width, :height height, :fixed-particles #{}})
 
-(defn add-fixed-point
+(defn add-fixed-particle
   "Add a fixed point to a `simulation` at coordinates `x` and `y`."
   [simulation [x y]]
-  (update simulation :fixed-points conj [x y]))
+  (update simulation :fixed-particles conj [x y]))
 
-(defn add-fixed-points
+(defn add-fixed-particles
   "Add fixed `points` to `simulation`"
   [simulation & points]
-  (reduce add-fixed-point simulation points))
+  (reduce add-fixed-particle simulation points))
 
 (defn get-adjacent-points
   "Return a set of points adjacent to the provided `[x y]` coordinates."
@@ -22,18 +22,18 @@
   (->> #{[1 0] [-1 0] [0 1] [0 -1]}
        (map (fn [[x2 y2]] [(+ x x2) (+ y y2)])) set))
 
-(defn are-points-adjacent?
+(defn points-adjacent?
   "Determine if coordinates `[x y]` are adjacent to a fixed point
    with coordinates `[fixed-x fixed-y]`."
-  [fixed-point point]
-  (contains? (get-adjacent-points point) fixed-point))
+  [fixed-particle particle]
+  (contains? (get-adjacent-points particle) fixed-particle))
 
 (defn simulation-contains-adjacent-point?
   "Determine if simulation contains a fixed point adjacent to 
    the `[x y]` coordinates."
   [simulation point]
   (->> (get-adjacent-points point) 
-       (intersection (simulation :fixed-points)) seq boolean))
+       (intersection (simulation :fixed-particles)) seq boolean))
 
 (defn simulation-row->printable-string
   "Converts a `simulation` `row` into a printable string."
@@ -41,8 +41,8 @@
   (reduce
    (fn [row-str col-number]
      (let [coordinates [row-number (inc col-number)]
-           fixed-point-at-coordinates? (contains? (simulation :fixed-points) coordinates)]
-       (str row-str (if fixed-point-at-coordinates? "O" "-"))))
+           fixed-particle-at-coordinates? (contains? (simulation :fixed-particles) coordinates)]
+       (str row-str (if fixed-particle-at-coordinates? "O" "-"))))
    ""
    (range (simulation :width))))
 
@@ -86,7 +86,16 @@
 
 (defn move-particle
   "Move `particle` in a random direction within the `simulation`",
-  [particle simulation]
+  [simulation particle]
   (let [possible-directions (filter #((:test %) particle simulation) particle-move-directions)
         random-direction-shift (:shift (rand-nth possible-directions))]
     (mapv + particle random-direction-shift)))
+
+(defn walk-particle
+  "Randomly walk `particle` around `simulation` until it wanders next to
+  a fixed particle."
+  [particle simulation]
+  (->> (iterate (partial move-particle simulation) particle)
+       (drop-while #(not (simulation-contains-adjacent-point? simulation %)))
+       (first)
+       ))

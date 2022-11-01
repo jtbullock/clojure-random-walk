@@ -97,5 +97,12 @@
   [particle simulation]
   (->> (iterate (partial move-particle simulation) particle)
        (drop-while #(not (simulation-contains-adjacent-point? simulation %)))
-       (first)
-       ))
+       (first)))
+
+(defn run-simulation
+  "Run a simulation!"
+  []
+  (let [simulation (add-fixed-particle (create-simulation 100 100) [49 49])]
+    (reduce (fn [acc, _] (add-fixed-particle acc (walk-particle (get-random-boundary-point acc) acc)))
+            simulation
+            (range 600))))

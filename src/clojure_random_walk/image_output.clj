@@ -4,7 +4,7 @@
   (:import (javax.imageio ImageIO)
            (java.io FileOutputStream)))
 
-(defn create-image [] (BufferedImage. 200 200 BufferedImage/TYPE_INT_RGB))
+(defn create-image [w h] (BufferedImage. w h BufferedImage/TYPE_INT_RGB))
 
 (def fg-color (.getRGB Color/WHITE))
 
@@ -19,3 +19,15 @@
   [img uri]
   (with-open [file (FileOutputStream. uri)]
     (ImageIO/write img "JPG" file)))
+
+(defn getPixels
+  [img]
+  (vec (.getRGB img 0 0 (.getWidth img) (.getHeight img) nil 0 (.getWidth img))))
+
+(defn getRGBTest
+  []
+  (-> (create-image 3 3)
+      (doto
+        (.setRGB 1 1 fg-color))
+      (getPixels)))
+

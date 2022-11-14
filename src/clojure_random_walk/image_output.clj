@@ -31,3 +31,15 @@
         (.setRGB 1 1 fg-color))
       (getPixels)))
 
+(defn getPixelScalingMatrix
+  "Given a `scale` size, return a matrix for scaling a pixel."
+  [scale]
+  (-> (for [x (range 0 scale)
+            y (range 0 scale)]
+        [x y])))
+
+(defn particle->scaled_pixels
+  "Given a `particle` and a `scale`, return an array of pixels."
+  [[p_x p_y] scale]
+  (let [pixel_matrix (getPixelScalingMatrix scale)]
+    (map (fn [m_x m_y] [(+ p_x m_x) (+ p_y m_y)]) pixel_matrix)))

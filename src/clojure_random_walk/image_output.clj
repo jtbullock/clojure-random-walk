@@ -34,9 +34,8 @@
 (defn getPixelScalingMatrix
   "Given a `scale` size, return a matrix for scaling a pixel."
   [scale]
-  (-> (for [x (range 0 scale)
-            y (range 0 scale)]
-        [x y])))
+  (set (for [x (range 0 scale)
+             y (range 0 scale)] [x y])))
 
 (defn particle->scaled_pixels
   "Given a `particle` and a `scale`, return an array of pixels."
@@ -44,3 +43,16 @@
   (->> (getPixelScalingMatrix scale)
        (map (fn [[m_x m_y]] [(+ p_x m_x) (+ p_y m_y)]))
        set))
+
+(defn writeParticlesToImage
+  "Write the set of `particles` to the `image` at the given `scale`"
+  [image scale particles]
+  (reduce (fn [acc particle]
+            (let [start_x (* (first particle) scale)
+                  start_y (* (second particle) scale)
+                  scaled_pixels (into-array (particle->scaled_pixels particle scale))]
+              (doto acc (.setRGB start_x start_y scale scale scaled_pixels 0 scale))))
+          image
+          particles))
+
+(writeParticlesToImage img 3 sample-particles)

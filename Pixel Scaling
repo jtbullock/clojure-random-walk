@@ -39,3 +39,6 @@ Particles: [2 2] [6 4]
 * Create image
 * Write particles to image
 * Save image
+
+Where we're at: setRGB for a range needs a vector of colors, not a vector of pixel locations.
+  Two options: Call setRGB for each pixel, or build a color array to set a range of pixels.

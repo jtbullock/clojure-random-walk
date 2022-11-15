@@ -24,28 +24,28 @@
 (deftest points-adjacent?-test
   (let [fixed-point [50 50]]
     (testing "When no point is next to coordinates, returns false."
-      (is (= false (points-adjacent? fixed-point [5 5]))))
+      (is (= false (particles-adjacent? fixed-point [5 5]))))
 
     (testing "When fixed point is directly above coordinates, returns true."
-      (is (= true (points-adjacent? fixed-point [50 51]))))
+      (is (= true (particles-adjacent? fixed-point [50 51]))))
 
     (testing "When fixed point is directly below coordinates, returns true."
-      (is (= true (points-adjacent? fixed-point [50 49]))))
+      (is (= true (particles-adjacent? fixed-point [50 49]))))
 
     (testing "When fixed point is directly to the left, returns true."
-      (is (= true (points-adjacent? fixed-point [51 50]))))
+      (is (= true (particles-adjacent? fixed-point [51 50]))))
 
     (testing "When fixed point is directly to the right, returns true."
-      (is (= true (points-adjacent? fixed-point [49 50]))))
+      (is (= true (particles-adjacent? fixed-point [49 50]))))
 
     (testing "When fixed point is above and to the left, returns false."
-      (is (= false (points-adjacent? fixed-point [51 51]))))
+      (is (= false (particles-adjacent? fixed-point [51 51]))))
 
     (testing "When fixed point is at x+1 but y+5, returns false."
-      (is (= false (points-adjacent? fixed-point [51 55]))))
+      (is (= false (particles-adjacent? fixed-point [51 55]))))
 
     (testing "When fixed point is at y+1 but x+5, returns false."
-      (is (= false (points-adjacent? fixed-point [55 51]))))))
+      (is (= false (particles-adjacent? fixed-point [55 51]))))))
 
 (deftest get-adjacent-points-test
   (testing "Returns adjacent points"
@@ -54,17 +54,17 @@
 (deftest simulation-contains-adjacent-point?-test
   (let [simulation (add-fixed-particle (create-simulation 200 200) [50 50])]
     (testing "When point is not next to fixed point, returns false."
-      (is (= false (simulation-contains-adjacent-point? simulation [2 2]))))
+      (is (= false (simulation-contains-adjacent-fixed-particle? simulation [2 2]))))
     (testing "When point is next to fixed point, returns true"
-      (is (= true (simulation-contains-adjacent-point? simulation [50 51]))))
+      (is (= true (simulation-contains-adjacent-fixed-particle? simulation [50 51]))))
 
     (let [multi-point-sim (add-fixed-particle simulation [40 40])]
       (testing "When sim has multiple fixed points, and point
                 is next to a fixed point, returns true."
-        (is (= false (simulation-contains-adjacent-point? multi-point-sim [2 2]))))
+        (is (= false (simulation-contains-adjacent-fixed-particle? multi-point-sim [2 2]))))
       (testing "When sim has multiple fixed points, and point
                 is not next to a fixed point, returns false."
-        (is (= true (simulation-contains-adjacent-point? multi-point-sim [40 41])))))))
+        (is (= true (simulation-contains-adjacent-fixed-particle? multi-point-sim [40 41])))))))
 
 (deftest get-all-boundary-points-test
   (testing "Returns all points along border of 3x3 simulation."
@@ -127,4 +127,4 @@
     (let [fixed-particle [4 4]
           simulation (add-fixed-particles (create-simulation 10 10) fixed-particle)
           walked-particle (walk-particle (get-random-boundary-point simulation) simulation)]
-      (is (points-adjacent? fixed-particle walked-particle)))))
+      (is (particles-adjacent? fixed-particle walked-particle)))))

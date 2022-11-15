@@ -4,21 +4,26 @@
   (:import (javax.imageio ImageIO)
            (java.io FileOutputStream)))
 
-(defn create-image [w h] (BufferedImage. w h BufferedImage/TYPE_INT_RGB))
-
 (def color-rgb-fg (.getRGB Color/WHITE))
 
-(defn write-image
-  [img uri]
-  (with-open [file (FileOutputStream. uri)]
-    (ImageIO/write img "JPG" file)))
+(defn create-image
+  "Create an empty Java BufferedImage with the provided width and height."
+  [width height] (BufferedImage. width height BufferedImage/TYPE_INT_RGB))
 
 (defn get-image-pixels
-  [img]
-  (vec (.getRGB img 0 0 (.getWidth img) (.getHeight img) nil 0 (.getWidth img))))
+  "Return a vector of the color values of all pixels in the `image`."
+  [image]
+  (vec (.getRGB image 0 0 (.getWidth image) (.getHeight image) nil 0 (.getWidth image))))
+
+(defn write-image
+  "Write an image to file at the uri."
+  [image uri]
+  (with-open [file (FileOutputStream. uri)]
+    (ImageIO/write image "JPG" file)))
 
 (defn write-particles-to-image
-  "Write the set of `particles` to the `image` at the given `scale`"
+  "Write the set of `particles` to the `image` at the given `scale`.
+   At scale 1, 1 particle = 1 pixel. At scale 2, 1 particle = a 2x2 pixel square, and so on."
   [image scale particles]
   (reduce (fn [acc particle]
             (let [start-x (* (first particle) scale)

@@ -6,7 +6,7 @@
 
 (defn create-image [w h] (BufferedImage. w h BufferedImage/TYPE_INT_RGB))
 
-(def fg-color (.getRGB Color/WHITE))
+(def fg-color-rgb (.getRGB Color/WHITE))
 
 (defn draw-square [img color]
   (doto img
@@ -28,7 +28,7 @@
   []
   (-> (create-image 3 3)
       (doto
-        (.setRGB 1 1 fg-color))
+        (.setRGB 1 1 fg-color-rgb))
       (getPixels)))
 
 (defn getPixelScalingMatrix
@@ -50,9 +50,9 @@
   (reduce (fn [acc particle]
             (let [start_x (* (first particle) scale)
                   start_y (* (second particle) scale)
-                  scaled_pixels (into-array (particle->scaled_pixels particle scale))]
-              (doto acc (.setRGB start_x start_y scale scale scaled_pixels 0 scale))))
+                  pixel_color_arr (int-array (repeat (* scale scale) fg-color-rgb))]
+              (doto acc (.setRGB start_x start_y scale scale pixel_color_arr 0 scale))))
           image
           particles))
 
-(writeParticlesToImage img 3 sample-particles)
+;(writeParticlesToImage img 3 sample-particles)

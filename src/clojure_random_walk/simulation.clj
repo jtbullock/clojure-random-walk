@@ -21,8 +21,10 @@
 
 (defn create-simulation
   "Create a new simulation with the specified `width` and `height`."
-  [width height]
-  {:width width, :height height, :fixed-particles #{}})
+  ([width height]
+    {:width width, :height height, :fixed-particles #{}})
+  ([width height [x y]]
+    (add-fixed-particle (create-simulation width height) [x y])))
 
 (defn get-adjacent-points
   "Return a lazy sequence of points adjacent to the provided `[x y]` coordinates."
@@ -69,7 +71,7 @@
 
 (defn walk-particle
   "Randomly walk `particle` around `simulation` until it wanders next to a fixed particle."
-  [particle simulation]
+  [simulation particle]
   (->> (iterate (partial move-particle simulation) particle)
        (drop-while #(not (simulation-contains-adjacent-fixed-particle? simulation %)))
        (first)))
@@ -77,7 +79,7 @@
 (defn run-simulation
   "Run a preset simulation! Temporary until command line args are set up."
   []
-  (let [simulation (add-fixed-particle (create-simulation 100 100) [49 49])]
-    (reduce (fn [acc, _] (add-fixed-particle acc (walk-particle (get-random-boundary-point acc) acc)))
+  (let [simulation (create-simulation 100 100 [49 49])]
+    (reduce (fn [acc, _] (->> (get-random-boundary-point acc) (walk-particle acc) (add-fixed-particle acc)))
             simulation
             (range 600))))
